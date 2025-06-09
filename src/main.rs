@@ -1,4 +1,4 @@
-use axum::{Json, Router, extract::Request, http::Uri, response::IntoResponse};
+use axum::{Json, Router, body::to_bytes, extract::Request, http::Uri, response::IntoResponse};
 use axum_extra::extract::Host;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_ENGINE;
@@ -10,16 +10,16 @@ async fn main() {
     // Set up the Axum router to match any path and use echo_handler for all requests.
     let app = Router::new().fallback(echo_handler);
 
-    // Bind to 0.0.0.0:8081 and start the server.
-    let addr = "0.0.0.0:8081";
+    // Get the port from the PORT environment variable, default to 8081 if not set.
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8081".to_string());
+    let addr = format!("0.0.0.0:{}", port);
     println!("Listening on {}", addr);
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 
 // Handler that echoes request details and body in a JSON response.
 async fn echo_handler(host: Host, uri: Uri, req: Request) -> impl IntoResponse {
-    use axum::body::to_bytes;
     #[derive(Debug, Serialize)]
     #[serde(untagged)]
     enum BodyField {
@@ -74,14 +74,12 @@ async fn echo_handler(host: Host, uri: Uri, req: Request) -> impl IntoResponse {
         Some(BodyField::Base64(BASE64_ENGINE.encode(&body_bytes)))
     };
 
-    let res = Response {
+    Json(Response {
         host: host.0,
         method,
         path,
         headers,
         query_params,
         body: body_field,
-    };
-
-    Json(res)
+    })
 }
