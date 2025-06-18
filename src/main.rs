@@ -11,7 +11,7 @@ async fn main() {
     let app = Router::new().fallback(echo_handler);
 
     // Get the port from the PORT environment variable, default to 8081 if not set.
-    let port = std::env::var("PORT").unwrap_or_else(|_| "8081".to_string());
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8000".to_string());
     let addr = format!("0.0.0.0:{}", port);
     println!("Listening on {}", addr);
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
