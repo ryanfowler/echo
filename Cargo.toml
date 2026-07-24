@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 axum = { version = "0.8.9" }
 axum-extra = { version = "0.12.6" }
-base64 = { version = "0.22.1" }
+base64 = { version = "0.23.0" }
 form_urlencoded = { version = "1.2.2" }
 percent-encoding = { version = "2.3.2" }
 serde = { version = "1.0.228", features = ["derive"] }
